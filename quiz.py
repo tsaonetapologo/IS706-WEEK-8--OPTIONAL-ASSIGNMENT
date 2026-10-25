@@ -195,3 +195,17 @@ def run_read_only_query(
 
     truncated = len(rows) > MAX_RESULT_ROWS
     return columns, rows[:MAX_RESULT_ROWS], truncated
+
+
+def run_and_validate_query(
+    database_url: str,
+    query: str,
+    expected_rows: list[dict[str, Any]],
+) -> dict[str, Any]:
+    columns, rows, truncated = run_read_only_query(database_url, query)
+    return {
+        "columns": columns,
+        "rows": rows,
+        "truncated": truncated,
+        "correct": results_match_expected(columns, rows, expected_rows),
+    }

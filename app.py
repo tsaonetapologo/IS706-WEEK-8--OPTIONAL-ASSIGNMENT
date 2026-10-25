@@ -15,8 +15,7 @@ from quiz import (
     COUNTRY_FLAGS,
     QUESTIONS,
     add_country_flags,
-    results_match_expected,
-    run_read_only_query,
+    run_and_validate_query,
 )
 from rag import SQLRAG
 
@@ -367,6 +366,7 @@ with st.form(f"rag_form_{question['number']}"):
 
 if generate_clicked:
     st.session_state.pop(f"rag_result_{question['number']}", None)
+    st.session_state.pop(f"result_{question['number']}", None)
     if not OPENAI_API_KEY:
         st.error("AI generation is not configured. Add the OPENAI_API_KEY secret.")
     else:
@@ -380,8 +380,18 @@ if generate_clicked:
                 "sql": generated_sql,
                 "sources": retrieved_sources,
             }
+            with st.spinner("Running generated SQL with read-only database access..."):
+                result = run_and_validate_query(
+                    SUPABASE_DATABASE_URL,
+                    generated_sql,
+                    question["expected_rows"],
+                )
+            result["generated"] = True
+            st.session_state[f"result_{question['number']}"] = result
         except (ValueError, RuntimeError) as error:
             st.error(str(error))
+        except PsycopgError as error:
+            st.error(f"Generated SQL could not be executed: {error}")
         except OpenAIError as error:
             st.error(f"AI generation failed: {error}")
 
@@ -392,7 +402,9 @@ if rag_result is not None:
     st.caption(
         "Retrieved knowledge: " + ", ".join(rag_result["sources"])
     )
-    st.caption("The query was added to the editor below and has not been run.")
+    st.caption(
+        "The query was added to the editor and submitted to the read-only runner."
+    )
 
 with st.expander("Hint: expected SQL and expected result"):
     st.code(question["sql"], language="sql")
@@ -423,15 +435,11 @@ with st.form(f"query_form_{question['number']}"):
 if run_clicked:
     st.session_state.pop(f"result_{question['number']}", None)
     try:
-        columns, rows, truncated = run_read_only_query(SUPABASE_DATABASE_URL, query)
-        st.session_state[f"result_{question['number']}"] = {
-            "columns": columns,
-            "rows": rows,
-            "truncated": truncated,
-            "correct": results_match_expected(
-                columns, rows, question["expected_rows"]
-            ),
-        }
+        st.session_state[f"result_{question['number']}"] = run_and_validate_query(
+            SUPABASE_DATABASE_URL,
+            query,
+            question["expected_rows"],
+        )
     except ValueError as error:
         st.error(str(error))
     except PsycopgError as error:
@@ -456,7 +464,9 @@ if save_clicked:
 
 result = st.session_state.get(f"result_{question['number']}")
 if result is not None:
-    st.subheader("Query result")
+    st.subheader(
+        "Generated SQL result" if result.get("generated") else "Query result"
+    )
     if result["correct"]:
         st.success("Correct! Your query returns the expected result.")
     else:

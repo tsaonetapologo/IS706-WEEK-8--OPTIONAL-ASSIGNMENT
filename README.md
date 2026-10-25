@@ -1,7 +1,7 @@
 # Economics SQL Quiz
 
 **GitHub repository:** https://github.com/tsaonetapologo/IS706-WEEK-8--OPTIONAL-ASSIGNMENT
-**Current quiz deployment (redeploy this RAG version):** https://ids706-week7-assignment--economics-sql-quiz-cdqjbyzzrxtpiyyepq.streamlit.app/
+**Week 8 RAG deployment:** Pending deployment from this repository.
 
 This project is a Streamlit SQL lab backed by a hosted Supabase PostgreSQL
 database. Students create an account or sign in, ask an economics question in
@@ -21,8 +21,10 @@ question is worth 4 points, for 20 points total.
    a similarity search in ChromaDB. It sends the retrieved documents to OpenAI's
    `gpt-4o-mini` model, which returns a PostgreSQL `SELECT` query.
 4. The retrieved sources and generated SQL are shown in the quiz. The SQL is
-   placed in the existing editor; it is not run automatically. The existing
-   PostgreSQL runner still restricts execution to one read-only `SELECT`.
+   placed in the existing editor and automatically passed through the existing
+   PostgreSQL runner, which only permits one read-only `SELECT`.
+5. The result table is displayed and compared with that quiz question's
+   expected rows. Users can still edit and run SQL manually.
 
 The vector search is performed against ChromaDB; schema and examples are not
 simply added to the prompt without retrieval.
@@ -31,11 +33,13 @@ simply added to the prompt without retrieval.
 
 1. Create an account or sign in.
 2. Choose a question and write a SQL query.
-3. Select **Run query** to execute your SQL and see the live result.
+3. Select **Run query** to execute your SQL manually and see the live result.
 4. Review the result, edit your query, and run it again as often as you need.
 5. For AI assistance, enter a natural-language question and select
-   **Generate SQL**. Review the retrieved sources and generated query, then run
-   it from the SQL editor if you choose.
+   **Generate SQL**. The app retrieves relevant context, generates SQL, runs it
+   using the read-only quiz role, displays the result table, and reports whether
+   the result matches the expected answer. Review and edit the SQL in the
+   existing editor as needed.
 
 Each question's hint expander contains both the expected SQL and expected result
 from the start. Query attempts are unlimited. Use the **Dark mode** toggle in
@@ -102,7 +106,7 @@ streamlit run app.py
 
 Open the local URL printed by Streamlit, create an account or sign in, choose a
 question, and try **Generate SQL** or write a query yourself. Generated SQL is
-not executed until you select **Run query**. **Save query** stores that
+automatically executed with read-only access. **Save query** stores that
 question's SQL under the signed-in user's account. Follow the
 [student quiz instructions](#student-quiz-instructions) for the unlimited
 attempts and hint details.
@@ -128,8 +132,9 @@ with a superuser query path.
 
 ## Deploy the quiz site
 
-1. Push the project to GitHub and sign in to Streamlit Community Cloud.
-2. Create an app from the repository, selecting `app.py` as the entry point.
+1. Sign in to Streamlit Community Cloud and create an app from
+   `tsaonetapologo/IS706-WEEK-8--OPTIONAL-ASSIGNMENT`, selecting `app.py` as the
+   entry point.
 3. In the app's **Settings → Secrets**, add the four settings in TOML form:
 
    ```toml
@@ -139,15 +144,18 @@ with a superuser query path.
    SUPABASE_DATABASE_URL = "postgresql://postgres.your-project-ref:YOUR_DB_PASSWORD@POOLER_HOST:5432/postgres?sslmode=require"
    ```
 
-4. After the RAG version deploys, update the deployment link at the top of this
-   README if its URL changes. Verify generation with a sample question and add a
-   screenshot showing the question and generated SQL. Submit the GitHub
-   repository URL.
+4. Wait for the app to deploy, set the public app URL below, and test the full
+   question → retrieved sources → generated SQL → result workflow. Deployment
+   requires valid Supabase settings and an OpenAI API key; these are not
+   committed to this repository.
 
 ## Screenshots
 
-After deploying and configuring `OPENAI_API_KEY`, capture the app with a
-question and its generated SQL, and add that image here before submission.
+After deploying and configuring the required secrets, capture the live app
+showing a question, generated SQL, retrieved sources, result table, and
+validation outcome. Add the screenshot to this repository and link it here
+before submission. A real deployment screenshot cannot be generated until the
+app is deployed and the external API/database secrets are configured.
 
 ## Quiz questions
 

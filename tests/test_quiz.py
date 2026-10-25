@@ -13,6 +13,7 @@ from quiz import (
     QUESTIONS,
     add_country_flags,
     results_match_expected,
+    run_and_validate_query,
     run_read_only_query,
     validate_read_only_query,
 )
@@ -157,6 +158,32 @@ class QuerySafetyTests(unittest.TestCase):
         self.assertEqual(columns, ["country"])
         self.assertEqual(len(rows), 500)
         self.assertTrue(truncated)
+
+    def test_run_and_validate_query_returns_executed_rows_and_correctness(self) -> None:
+        expected = [{"country": "Botswana"}]
+        with patch(
+            "quiz.run_read_only_query",
+            return_value=(["country"], [("Botswana",)], False),
+        ) as run_query:
+            result = run_and_validate_query(
+                "postgresql://example.test/postgres",
+                "SELECT country FROM public.economic_indicators",
+                expected,
+            )
+
+        run_query.assert_called_once_with(
+            "postgresql://example.test/postgres",
+            "SELECT country FROM public.economic_indicators",
+        )
+        self.assertEqual(
+            result,
+            {
+                "columns": ["country"],
+                "rows": [("Botswana",)],
+                "truncated": False,
+                "correct": True,
+            },
+        )
 
 
 if __name__ == "__main__":
