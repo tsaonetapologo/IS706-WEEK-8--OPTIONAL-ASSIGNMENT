@@ -10,6 +10,47 @@ generation (RAG). They can edit and run the generated query against the live
 `economic_indicators` table, see the result rows, and save their SQL. Each
 question is worth 4 points, for 20 points total.
 
+## What I did to complete this assignment
+
+1. **Built the quiz.** I created a Streamlit economics SQL quiz with five
+   questions worth 4 points each (20 total), covering sorting, filtering,
+   aggregation, counting, and population thresholds.
+2. **Set up the hosted database.** I created a Supabase project and ran
+   [`schema.sql`](./schema.sql) in the SQL Editor. It created and seeded the
+   `economic_indicators` table with 10 countries, the owner-only `quiz_saves`
+   table, and the restricted `quiz_reader` role.
+3. **Added authentication.** I enabled Supabase email sign-up so students can
+   create an account, sign in, and save their own queries.
+4. **Made the SQL runner safe.** I limited it to a single parsed `SELECT`,
+   ran it as `quiz_reader` in a read-only transaction, and added a five-second
+   timeout and a 500-row limit.
+5. **Added RAG.** I stored the schema and quiz examples as documents,
+   embedded them with OpenAI, and stored the vectors in ChromaDB. Each question
+   retrieves similar documents, which `gpt-4o-mini` uses to generate SQL.
+6. **Auto-ran and validated generated SQL.** I made the app run each generated
+   query through the read-only runner and compare the result with the expected
+   rows.
+7. **Wrote tests.** I wrote 17 unit tests covering the quiz content, query
+   safety, and RAG. I ran them and they all passed.
+8. **Set up GitHub Actions.** I added `database-check.yml` and stored the
+   Session pooler URI as the repository secret `SUPABASE_DATABASE_URL`. I ran
+   the workflow and it passed.
+9. **Deployed the app.** I deployed `app.py` on Streamlit Community Cloud and
+   added my Supabase, OpenAI, and database settings as secrets, so none are
+   committed to the repository.
+10. **Fixed problems along the way.** I corrected my Supabase project URL after
+    a sign-in error, then fixed a database password authentication failure in
+    my Streamlit secret.
+11. **Tested the live app.** I signed in, clicked **Generate SQL**, and
+    confirmed that the retrieved sources, generated SQL, result table, and
+    "Correct!" outcome all appear.
+12. **Made the app public and added evidence.** I set the app to public,
+    captured three screenshots (see [Screenshots](#screenshots)), and added them
+    to the repository with this README.
+13. **Cleaned up the repository.** I closed an unneeded draft pull request from
+    Copilot and deleted its branch, because my corrected secret already fixed
+    the failing database check.
+
 ## RAG architecture
 
 1. The app stores the `economic_indicators` schema and the five quiz
