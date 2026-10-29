@@ -3,10 +3,23 @@ import os
 import psycopg
 
 
+def normalize_database_url(value: str) -> str:
+    value = value.strip()
+    prefix = "SUPABASE_DATABASE_URL="
+    if value.startswith(prefix):
+        value = value[len(prefix):].strip()
+    return value.strip("\"'").strip()
+
+
 def main() -> None:
-    database_url = os.environ.get("SUPABASE_DATABASE_URL")
+    database_url = normalize_database_url(os.environ.get("SUPABASE_DATABASE_URL", ""))
     if not database_url:
         raise SystemExit("SUPABASE_DATABASE_URL must be configured as a GitHub Secret.")
+    if not database_url.startswith(("postgresql://", "postgres://")):
+        raise SystemExit(
+            "SUPABASE_DATABASE_URL must be a PostgreSQL URI starting with "
+            "postgresql:// (use the Supabase Session pooler connection string)."
+        )
 
     with psycopg.connect(
         database_url,
