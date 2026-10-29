@@ -1,7 +1,7 @@
 # Economics SQL Quiz
 
 **GitHub repository:** https://github.com/tsaonetapologo/IS706-WEEK-8--OPTIONAL-ASSIGNMENT
-**Week 8 RAG deployment:** Pending deployment from this repository.
+**Week 8 RAG deployment:** https://is706-week-8--optional-assignment-sddpwaerbgvz3y9wvwsav3.streamlit.app
 
 This project is a Streamlit SQL lab backed by a hosted Supabase PostgreSQL
 database. Students create an account or sign in, ask an economics question in
@@ -135,7 +135,7 @@ with a superuser query path.
 1. Sign in to Streamlit Community Cloud and create an app from
    `tsaonetapologo/IS706-WEEK-8--OPTIONAL-ASSIGNMENT`, selecting `app.py` as the
    entry point.
-3. In the app's **Settings → Secrets**, add the four settings in TOML form:
+2. In the app's **Settings → Secrets**, add the four settings in TOML form:
 
    ```toml
    SUPABASE_URL = "https://your-project-ref.supabase.co"
@@ -144,18 +144,21 @@ with a superuser query path.
    SUPABASE_DATABASE_URL = "postgresql://postgres.your-project-ref:YOUR_DB_PASSWORD@POOLER_HOST:5432/postgres?sslmode=require"
    ```
 
-4. Wait for the app to deploy, set the public app URL below, and test the full
-   question → retrieved sources → generated SQL → result workflow. Deployment
-   requires valid Supabase settings and an OpenAI API key; these are not
-   committed to this repository.
+3. Wait for the app to deploy and test the full question → retrieved sources →
+   generated SQL → result workflow. The live app is deployed at the URL at the
+   top of this README. Deployment requires valid Supabase settings and an
+   OpenAI API key; these are not committed to this repository.
 
 ## Screenshots
 
-After deploying and configuring the required secrets, capture the live app
-showing a question, generated SQL, retrieved sources, result table, and
-validation outcome. Add the screenshot to this repository and link it here
-before submission. A real deployment screenshot cannot be generated until the
-app is deployed and the external API/database secrets are configured.
+Screenshots of the deployed app:
+
+1. The quiz question.
+   ![Economics SQL Quiz question](docs/screenshot-1.png)
+2. The natural-language question, generated SQL, and retrieved ChromaDB sources.
+   ![Generated SQL with retrieved sources](docs/screenshot-2.png)
+3. The executed generated SQL, result table, and "Correct!" validation outcome.
+   ![Result table and validation outcome](docs/screenshot-3.png)
 
 ## Quiz questions
 
